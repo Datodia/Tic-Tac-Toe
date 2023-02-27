@@ -4,7 +4,6 @@ let X_pattern = [];
 let O_pattern = [];
 const winnerMark = document.getElementById("winner-mark");
 let turn = document.getElementById("turn");
-let allBox = document.querySelectorAll(".box");
 const player1Name = document.getElementById("player1Name");
 const player2Name = document.getElementById("player2Name");
 const cpuBtn = document.getElementById("cpuBtn");
@@ -13,17 +12,17 @@ const XradioBtn = document.getElementById("X-mark");
 const OradioBtn = document.getElementById("O-mark");
 const winnerX = false;
 const winnerO = false;
-const box0 = document.getElementById("0");
-const box1 = document.getElementById("1");
-const box2 = document.getElementById("2");
-const box3 = document.getElementById("3");
-const box4 = document.getElementById("4");
-const box5 = document.getElementById("5");
-const box6 = document.getElementById("6");
-const box7 = document.getElementById("7");
-const box8 = document.getElementById("8");
+const boxes = document.querySelectorAll('.box')
+const modal = document.getElementById("modal");
+const endGame = document.getElementById("endGameModal");
+const restartingGame = document.getElementById("restartGame");
+const winnerTakes = document.getElementById("winnerTakes");
+const winnerName = document.getElementById("winnerName");
+const Xscore = document.getElementById("Xscore");
+const drawScore = document.getElementById("draw");
+const Oscore = document.getElementById("Oscore");
 
-let origBoard = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+let origBoard = Array.from(Array(9).keys());
 let player;
 let cpu;
 
@@ -38,7 +37,25 @@ const win_pattern = [
     [2, 4, 6],
 ];
 
+function newGameCPU() {
+    gameBoard.style.display = "initial";
+    gameMenu.style.display = "none";
+    if (XradioBtn.checked === true) {
+        player = "X";
+        cpu = "O";
+        player1Name.innerHTML = "X (You)";
+        player2Name.innerHTML = "0 (CPU)";
+    } else {
+        player = "O";
+        cpu = "X";
+        player1Name.innerHTML = "X (CPU)";
+        player2Name.innerHTML = "0 (You)";
+    }
+    cpuBtn.setAttribute("data-value", "active");
+    playerBtn.setAttribute("data-value", "");
 
+    cpuTurn();
+}
 
 function newGamePlayer() {
     gameBoard.style.display = "initial";
@@ -46,6 +63,7 @@ function newGamePlayer() {
     player1Name.innerHTML = "X (P1)";
     player2Name.innerHTML = "0 (P2)";
     playerBtn.setAttribute("data-value", "active");
+    cpuBtn.setAttribute("data-value", "");
 }
 
 function restartGame() {
@@ -80,7 +98,7 @@ function hitBox(box) {
                 (parseInt(boxChoice.id, 10), cpu)
             );
         }
-        for (empty of allBox) {
+        for (empty of boxes) {
             if (empty.getAttribute("data-value") === "") {
                 empty.classList.add("hoverClassO");
                 empty.classList.remove("hoverClassX");
@@ -111,7 +129,7 @@ function hitBox(box) {
                 (parseInt(boxChoice.id, 10), cpu)
             );
         }
-        for (empty of allBox) {
+        for (empty of boxes) {
             if (empty.getAttribute("data-value") === "") {
                 empty.classList.add("hoverClassX");
                 empty.classList.remove("hoverClassO");
@@ -120,7 +138,9 @@ function hitBox(box) {
         checkWin(O_pattern);
     }
 
-
+    if (cpuBtn.getAttribute("data-value") === "active") {
+        cpuTurn();
+    }
 }
 
 var isThereWinner = false;
@@ -131,7 +151,7 @@ function checkWin(currentPlayer) {
             for (const v of new Set(a)) {
                 if (!b.some((e) => e === v)) return false;
             }
-            for (empty of allBox) {
+            for (empty of boxes) {
                 if (empty.getAttribute("data-value") === "") {
                     empty.classList.remove("hoverClassX");
                     empty.classList.remove("hoverClassO");
@@ -150,7 +170,7 @@ function checkWin(currentPlayer) {
         X_pattern.length === 5 &&
         O_pattern.length === 4
     ) {
-        for (all of allBox) {
+        for (all of boxes) {
             all.classList.remove("hoverClassO");
             all.classList.remove("hoverClassX");
             all.setAttribute("onclick", "");
@@ -159,7 +179,40 @@ function checkWin(currentPlayer) {
     }
 }
 
+async function cpuTurn() {
+    if (XradioBtn.checked === true) {
+        const promise = new Promise((resolve, reject) => {
+            if (turn.getAttribute("data-value") === "O") {
+                boxes.forEach(box => {
+                    box.setAttribute('onclick', "")
+                });
+                resolve();
+            }
+            if (winnerX === true) {
+                reject();
+            }
+        });
+        await promise;
 
+        cpuPlay()
+    }
+
+    if (OradioBtn.checked === true) {
+        const promise = new Promise((resolve) => {
+            if (turn.getAttribute("data-value") === "X") {
+                boxes.forEach(box => {
+                    box.setAttribute('onclick', "")
+                });
+                resolve();
+            }
+            if (winnerO === true) {
+                reject();
+            }
+        });
+        await promise;
+        cpuPlay()
+    }
+}
 
 function printLetterByLetter(destination, message, speed) {
     var i = 0;
@@ -174,16 +227,17 @@ function printLetterByLetter(destination, message, speed) {
 }
 
 
+function bestSpot() {
+    return minimax(origBoard, cpu).index;
+}
 
+function cpuPlay() {
+    hitBox(bestSpot());
 
-const modal = document.getElementById("modal");
-const endGame = document.getElementById("endGameModal");
-const restartingGame = document.getElementById("restartGame");
-const winnerTakes = document.getElementById("winnerTakes");
-const winnerName = document.getElementById("winnerName");
-const Xscore = document.getElementById("Xscore");
-const drawScore = document.getElementById("draw");
-const Oscore = document.getElementById("Oscore");
+    for (let i = 0; i < boxes.length; i++) {
+        boxes[i].setAttribute("onclick", `hitBox('${i}')`);
+    }
+}
 
 function results() {
     modal.style.display = "initial";
@@ -201,6 +255,14 @@ function results() {
                 winnerName.innerHTML = "Player 1 wins!";
             }
         }
+        if (cpuBtn.getAttribute("data-value") === "active") {
+            if (XradioBtn.checked === true) {
+                winnerName.innerHTML = "You won!";
+            }
+            if (OradioBtn.checked === true) {
+                winnerName.innerHTML = "Oh no, you lost...";
+            }
+        }
 
         winnerMark.src = "./assets/icon-x.svg";
         winnerMark.style.display = "initial";
@@ -216,6 +278,14 @@ function results() {
             }
             if (XradioBtn.checked === true) {
                 winnerName.innerHTML = "Player 2 wins!";
+            }
+        }
+        if (cpuBtn.getAttribute("data-value") === "active") {
+            if (OradioBtn.checked === true) {
+                winnerName.innerHTML = "You won!";
+            }
+            if (XradioBtn.checked === true) {
+                winnerName.innerHTML = "Oh no, you lost...";
             }
         }
         winnerMark.src = "./assets/icon-o.svg";
@@ -248,25 +318,19 @@ function nextRound() {
         all.parentNode.removeChild(all);
     }
 
-    for (all of allBox) {
+    for (all of boxes) {
         all.setAttribute("data-value", "");
         all.classList.add("hoverClassX");
     }
     turn.setAttribute("data-value", "X");
     turn.src = "./assets/icon-x-turn.svg";
-    box0.setAttribute("onclick", "hitBox('0')");
-    box1.setAttribute("onclick", "hitBox('1')");
-    box2.setAttribute("onclick", "hitBox('2')");
-    box3.setAttribute("onclick", "hitBox('3')");
-    box4.setAttribute("onclick", "hitBox('4')");
-    box5.setAttribute("onclick", "hitBox('5')");
-    box6.setAttribute("onclick", "hitBox('6')");
-    box7.setAttribute("onclick", "hitBox('7')");
-    box8.setAttribute("onclick", "hitBox('8')");
+    for (let i = 0; i < boxes.length; i++) {
+        boxes[i].setAttribute("onclick", `hitBox('${i}')`);
+    }
     X_pattern = [];
     O_pattern = [];
     origBoard = Array.from(Array(9).keys());
-
+    cpuTurn();
 }
 
 function displayModalRestart() {
@@ -280,7 +344,6 @@ function cancelReset() {
     checkWin(O_pattern);
     checkWin(X_pattern);
 }
-
 
 
 function emptySquares() {
@@ -299,3 +362,53 @@ function checkWinner(board, player) {
     return gameWon;
 }
 
+function minimax(newBoard, player) {
+    var availSpots = emptySquares();
+
+    if (checkWinner(newBoard, player)) {
+        return { score: -10 };
+    } else if (checkWinner(newBoard, cpu)) {
+        return { score: 10 };
+    } else if (availSpots.length === 0) {
+        return { score: 0 };
+    }
+    var moves = [];
+    for (var i = 0; i < availSpots.length; i++) {
+        var move = {};
+        move.index = newBoard[availSpots[i]];
+        newBoard[availSpots[i]] = player;
+
+        if (player == cpu) {
+            var result = minimax(newBoard, player);
+            move.score = result.score;
+        } else {
+            var result = minimax(newBoard, cpu);
+            move.score = result.score;
+        }
+
+        newBoard[availSpots[i]] = move.index;
+
+        moves.push(move);
+    }
+
+    var bestMove;
+    if (player === cpu) {
+        var bestScore = -10000;
+        for (var i = 0; i < moves.length; i++) {
+            if (moves[i].score > bestScore) {
+                bestScore = moves[i].score;
+                bestMove = i;
+            }
+        }
+    } else {
+        var bestScore = 10000;
+        for (var i = 0; i < moves.length; i++) {
+            if (moves[i].score < bestScore) {
+                bestScore = moves[i].score;
+                bestMove = i;
+            }
+        }
+    }
+
+    return moves[bestMove];
+}
