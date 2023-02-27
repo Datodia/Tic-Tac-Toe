@@ -1,5 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@500;700&display=swap');
+
 :root {
-    /* colors */
     --lightBlue: 178 60% 48%;
     --lightBlueHover: 178 75% 65%;
     --orange: 39 88% 58%;
@@ -9,7 +10,6 @@
     --silver: 198 23% 72%;
     --silverHover: 197 33% 89%;
 
-    /* font-sizes */
     --fs-900: 1.5rem;
     --fs-800: 1.25rem;
     --fs-700: 1rem;

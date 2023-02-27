@@ -21,8 +21,7 @@ const winnerName = document.getElementById("winnerName");
 const Xscore = document.getElementById("Xscore");
 const drawScore = document.getElementById("draw");
 const Oscore = document.getElementById("Oscore");
-
-let origBoard = Array.from(Array(9).keys());
+let origBoard = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 let player;
 let cpu;
 
@@ -36,6 +35,16 @@ const win_pattern = [
     [0, 4, 8],
     [2, 4, 6],
 ];
+
+
+function newGamePlayer() {
+    gameBoard.style.display = "initial";
+    gameMenu.style.display = "none";
+    player1Name.innerHTML = "X (P1)";
+    player2Name.innerHTML = "0 (P2)";
+    playerBtn.setAttribute("data-value", "active");
+    cpuBtn.setAttribute("data-value", "");
+}
 
 function newGameCPU() {
     gameBoard.style.display = "initial";
@@ -55,15 +64,6 @@ function newGameCPU() {
     playerBtn.setAttribute("data-value", "");
 
     cpuTurn();
-}
-
-function newGamePlayer() {
-    gameBoard.style.display = "initial";
-    gameMenu.style.display = "none";
-    player1Name.innerHTML = "X (P1)";
-    player2Name.innerHTML = "0 (P2)";
-    playerBtn.setAttribute("data-value", "active");
-    cpuBtn.setAttribute("data-value", "");
 }
 
 function restartGame() {
@@ -329,7 +329,7 @@ function nextRound() {
     }
     X_pattern = [];
     O_pattern = [];
-    origBoard = Array.from(Array(9).keys());
+    origBoard = [0, 1, 2, 3, 4, 5, 6, 7, 8];
     cpuTurn();
 }
 
