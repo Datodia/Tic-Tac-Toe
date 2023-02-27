@@ -373,7 +373,6 @@ select {
     background: hsl(var(--lightBlueHover));
 }
 
-
 .gameBoard {
     display: none;
     z-index: -1;
