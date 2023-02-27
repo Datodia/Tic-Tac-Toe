@@ -74,6 +74,10 @@ function hitBox(box) {
     var boxChoice = document.getElementById(box);
     var img = document.createElement("img");
 
+    if (boxChoice.getAttribute("data-value") !== "") {
+        return;
+    }
+
     if (turn.getAttribute("data-value") === "X") {
         img.src = "./assets/icon-x.svg";
         img.setAttribute("class", "boxPlayed");
@@ -142,6 +146,7 @@ function hitBox(box) {
         cpuTurn();
     }
 }
+
 
 var isThereWinner = false;
 
